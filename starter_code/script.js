@@ -8,7 +8,7 @@ window.onload = function() {
 
   const Game = function(){
     this.car = {};
-    this.obstacles = [];
+    this.obstacles = Math.floor(Math.random() *[].length);
   }
 
   let currentGame;
@@ -18,8 +18,14 @@ window.onload = function() {
     currentGame = new Game();
     currentCar = new Car();
     currentGame.car = currentCar;
-    //drawBackground();
-    //currentGame.car.draw();
+    
+    currentGame.obstacles = [
+      
+      new Obstacles(170, 220, 190, 20),
+      new Obstacles(70, 20, 150, 20),
+      new Obstacles(280, 400, 120, 20),
+    ]
+
     drawingLoop();
   }
 
@@ -65,14 +71,14 @@ function drawEverything (){
   if(currentGame.car.x > 380){
      currentGame.car.x = 380;
   }
-  // currentGame.obstacles.forEach((oneObstacle) => {
-  //     oneObstacle.drawObstacle();
-  //     if(checkCollision(currentGame.floppy, oneObstacle)){
-  //         currentGame.floppy.isCrashed = true;
-  //         oneObstacle.isTouched = true;
-  //         gameOver();
-  //     }
-  // }) 
+  currentGame.obstacles.forEach((oneObstacle) => {
+      oneObstacle.drawObstacle();
+      if(checkCollision(currentGame.car, oneObstacle)){
+          currentGame.car.isCrashed = true;
+          oneObstacle.isTouched = true;
+          gameOver();
+      }
+  }) 
 }
 
 
@@ -96,15 +102,50 @@ Car.prototype.draw = function(){
 Car.prototype.steer = function(someKeyCode){
   switch(someKeyCode){
     case 37: //Left
-      this.x -= 10;
+      this.x -= 15;
       break;
     case 39: //Right
-      this.x += 10;
+      this.x += 15;
       break;
   }
 }
+function Obstacles(theX, theY, theWidth, theHeight){
+  this.x = theX;
+  this.y = theY;
+  this.width = theWidth;
+  this.height = theHeight;
+  this.isTouched = false;  
+}
 
+Obstacles.prototype.drawObstacle = function(){     
+  if(currentGame.car.isCrashed === false){
+      this.y += 1;
+      if(this.y > 650){
+          this.y = 0;
+  }
+}
+  if(this.isTouched){
+      ctx.fillStyle = "red";
+  } else {
+      ctx.fillStyle = "blue"
+  }
 
+  ctx.fillRect(this.x, this.y, this.width, this.height);
+
+}
+
+function checkCollision(obj1, obj2){
+  return obj1.y + obj1.height >= obj2.y
+  &&     obj1.y <= obj2.y + obj2.height
+  &&     obj1.x + obj1.width  >= obj2.x
+  &&     obj1.x <= obj2.x + obj2.width
+}
+
+function gameOver (){
+  ctx.font = "bold 30px Arial";
+  ctx.fillStyle = "magenta";
+  ctx.fillText("Game Over", 250, 325);
+}
   
 };
 
